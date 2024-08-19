@@ -9,14 +9,17 @@ mongoose.connect(process.env.MONGO_URI)
 .then(() => {console.log('Connected to MongoDB Database :)')})
 .catch((err) => {console.log(`You broke the database :( ${err}`) });
 
-
-
 //View engines
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
 //Middlewares
 app.use(express.static('public'));
+app.use((res, req, next) => {
+    console.error(err.stack);
+    res.statusCode(500).send('Now the server is broken! >:(');
+    next();
+});
 
 //Start server
 app.listen(PORT, () => {
