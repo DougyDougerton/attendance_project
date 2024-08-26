@@ -18,10 +18,12 @@ const attendanceManagerSchema = new mongoose.Schema({
         default: 'Attendance Manager',
         enum: ['Attendance Manager', 'Admin'],
     },
-      timestamps: true,    
+
+       
         
 
-});
+},
+    {timestamps: true});
 
 const AttendanceManager = mongoose.model('AttendanceManager', attendanceManagerSchema);
 module.exports = AttendanceManager;
