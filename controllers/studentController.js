@@ -1,8 +1,7 @@
-const StudentRecord = require('../models/studentRecord.js');
+const StudentRecord = require('../models/studentRecord');
 const AttendanceManager = require('../models/attendanceManager.js');
 
-exports.getHome = async (req,res) =>{
-
+exports.getHome = async (req, res) =>{
     try{
         const students = await StudentRecord.find({});
 
@@ -10,8 +9,7 @@ exports.getHome = async (req,res) =>{
 
         res.render('attendance.ejs', {students, maxAttendanceCount});
 
-
     }catch(error){
-        res.status(500).send('The server is not servering.');
+        res.status(500).send('Internal Server Error');
     }
 }
