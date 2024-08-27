@@ -1,77 +1,65 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const AttendanceManager = require('../models/attendanceManager.js');
+const AttendanceManager = require('../models/attendanceManager.js')
 require('dotenv').config();
 
-
-exports.login = async(req,res) => {
-
+exports.login = async (req, res) => {
     const {email, password} = req.body;
-}
-    try{
+
+    try {
         const user = await AttendanceManager.findOne({email});
-    
+
         if(!user){
-            return res.status(401).send("Invaild username!");
+            return res.status(401).send('Invalid username or password.');
+        }
 
-            //Verify the password using bcrypt
-            const result = await bcrypt.compare(password, user.password);
+        const result = await bcrypt.compare(password, user.password);
 
-            if(!result){
-                return res.status(401).send('It is not vaild!');
-            }
+        if(!result){
+            return res.status(401).send('Invalid username or password.');
+        }
 
-            //Generate the JWT
-            const token = jwt.sign({id:user._id.toString()}, 'secret_key', {expiresIn: '5m'});
+        //generate the jwt
+        const token = jwt.sign({id: user._id.toString() }, 'secret_key', {expiresIn: '5m'});
 
-           //Create a cookie and place JWT/token inside it
-            res.cookie('jwt', token, {maxAge: 5 * 60 * 1000, http: true});
+        //create a cookie and place JWT/token inside it
+        res.cookie('jwt', token, {maxAge: 5 * 60 * 1000, http: true});
 
-            res.redirect('attendance');
+        res.redirect('attendance');
 
-            
-             
-         }}
-        
-    
-        
-
-
-// exports.register = async(req,res) => {
-
-//     const {email, password, confirmPassword} = req.body;
-    
-//     try{
-//         const existingUser = await AttendanceManager.findOne({email});
-
-//         if(existingUser){
-//             return res.status(400).send("Username already exists. Please choose another username :)");
-
-
-
-//         }
-        
-//         if(password !== confirmPassword){
-//             return res.status(400).send("Passwords do not match. :( Sad Panda 🐼");
-//         }
-
-//         const hashPassword = await bcrypt.hash(password, 10);
-
-//         const newUser = new AttendanceManager({
-//             email,
-//             password: hashPassword
-//         });
-
-//         await newUser.save();
-
-//         res.redirect('/login');
-
-//     }catch(error){
-//         res.status(500).send('Server is broken. Hold tight!')
-//     }
-
-
-// }
-catch (error) {
-    res.status(500).send('Server has a silly brain!');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
 }
+
+exports.register = async(req, res) => {
+    const { email, password, confirmPassword } = req.body;
+
+    try {
+        const existingUser = await AttendanceManager.findOne({email});
+
+        if(existingUser){
+            return res.status(400).send('User name already exists. Please try again.');
+        }
+
+        if(password !== confirmPassword){
+            return res.status(400).send('Passwords do not match.');
+        }
+
+        const hashPassword = await bcrypt.hash(password, 10);
+
+        const newUser = AttendanceManager({
+            email,
+            password: hashPassword,
+        });
+
+        await newUser.save();
+
+        res.redirect('/login');
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+};
