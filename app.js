@@ -1,6 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
+const yaml = require('yamljs');
+const initializeDatabase = require('./data/initializeDatabase');
+const swaggerUI = require('swagger-ui-express');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const authRoutes = require('./routes/authRoutes.js');
@@ -8,9 +11,15 @@ const studentRoutes = require('./routes/studentRoutes.js');
 const PORT = process.env.PORT || 3000;
 
 
+    //Swagger documentation
+    const swaggerDocument = yaml.load('./swagger.yaml');
+    app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+
 //Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
-.then(() => { console.log('아싸! You connected to MongoDB Database! :)') })
+.then(async() => {console.log('아싸! You connected to MongoDB Database! :)')
+    await initializeDatabase();
+})
 .catch((err) => { console.log(`안 좋다! Can't connect to the server! :(: ${err}`) });
 
 //View engines
